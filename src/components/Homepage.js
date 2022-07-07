@@ -10,14 +10,13 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import LogoutIcon from '@mui/icons-material/Logout';
 import CheckIcon from '@mui/icons-material/Check';
-
 export default function Homepage() {
   const [todo, setTodo] = useState("");
   const [todos, setTodos] = useState([]);
   const [isEdit, setIsEdit] = useState(false);
   const [tempUidd, setTempUidd] = useState("");
+  const[date,setDate]=useState( Date);
   const navigate = useNavigate();
-
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
       if (user) {
@@ -36,7 +35,6 @@ export default function Homepage() {
       }
     });
   }, []);
-
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
@@ -46,40 +44,37 @@ export default function Homepage() {
         alert(err.message);
       });
   };
-
   // add
   const writeToDatabase = () => {
     const uidd = uid();
     set(ref(db, `/${auth.currentUser.uid}/${uidd}`), {
       todo: todo,
-      uidd: uidd
+      uidd: uidd,
+      date:date
     });
-
     setTodo("");
   };
-
   // update
   const handleUpdate = (todo) => {
     setIsEdit(true);
     setTodo(todo.todo);
     setTempUidd(todo.uidd);
+    setDate(todo.date)
   };
-
   const handleEditConfirm = () => {
     update(ref(db, `/${auth.currentUser.uid}/${tempUidd}`), {
       todo: todo,
-      tempUidd: tempUidd
+      tempUidd: tempUidd,
+      date:date
     });
-
     setTodo("");
     setIsEdit(false);
+    setDate(todo.date)
   };
-
   // delete
   const handleDelete = (uid) => {
     remove(ref(db, `/${auth.currentUser.uid}/${uid}`));
   };
-
   return (
     <div className="homepage">
       <input
@@ -89,10 +84,10 @@ export default function Homepage() {
         value={todo}
         onChange={(e) => setTodo(e.target.value)}
       />
-
-      {todos.map((todo) => (
+      {todos.map((todo,date) => (
         <div className="todo">
-          <h1>{todo.todo}</h1>
+          <h3>{todo.todo} <br></br>{todo.date}
+          </h3>
           <EditIcon
             fontSize="large"
             onClick={() => handleUpdate(todo)}
@@ -105,7 +100,6 @@ export default function Homepage() {
           />
         </div>
       ))}
-
       {isEdit ? (
         <div>
         <CheckIcon onClick={handleEditConfirm} className="add-confirm-icon"/>
@@ -118,4 +112,13 @@ export default function Homepage() {
         <LogoutIcon onClick={handleSignOut} className="logout-icon" />
     </div>
   );
-}
+};
+
+
+
+
+
+
+
+
+
